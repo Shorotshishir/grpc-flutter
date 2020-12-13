@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 // import 'package:flutter_grpc/src/generated/helloworld.pbgrpc.dart';
 import 'package:flutter_grpc/src/generated/greet.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,15 +30,40 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var _counter = 0;
-  var result = '';
+  var resultUnary = '';
+  var resultStream = '';
   GreeterClient client = GreeterClient(ClientChannel('192.168.1.228',
       port: 5001,
       options: ChannelOptions(credentials: ChannelCredentials.insecure())));
 
-  void _incrementCounter() {
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/counter.txt');
+  }
+
+  /*void _incrementCounter() {
     setState(() {
       _counter++;
     });
+  }*/
+
+  readFile() async {
+    try {
+      final file = await _localFile;
+
+      // Read the file.
+      String contents = await file.readAsString();
+
+      return int.parse(contents);
+    } catch (e) {
+      // If encountering an error, return 0.
+      return 0;
+    }
   }
 
   void _callGrpcService() async {
@@ -47,15 +75,24 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });*/
 
-    var response =
-        await client.sayHello(HelloRequest()..name = "Shorotshishir");
+    var responseUnary =
+        await client.sayHelloUnary(HelloRequest()..name = "Shorotshishir");
+    var temp1 = responseUnary.message;
 
-    var temp = '';
-    await for (var item in response) {
-      temp = '${temp}\n${item.message}';
+    var responseStream = await client
+        .sayHelloServerStream(HelloRequest()..name = "Shorotshishir");
+
+    var temp2 = '';
+    await for (var item in responseStream) {
+      temp2 = '${temp2}\n${item.message}';
     }
+
+    var p = await _localPath;
+    print(p);
     setState(() {
-      result = temp;
+      resultStream = temp2;
+      resultUnary = temp1;
+      _counter++;
     });
   }
 
@@ -69,12 +106,11 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text('request : $_counter -> $resultUnary',
+                style: Theme.of(context).textTheme.headline6),
             Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$result : $_counter',
-              style: Theme.of(context).textTheme.headline4,
+              '$resultStream',
+              style: Theme.of(context).textTheme.bodyText2,
             ),
           ],
         ),
