@@ -84,9 +84,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     var temp2 = '';
     await for (var item in responseStream) {
-      temp2 = '${temp2}\n${item.message}';
+      temp2 = '$temp2\n${item.message}';
     }
-
     var p = await _localPath;
     print(p);
     setState(() {
