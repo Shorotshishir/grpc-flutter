@@ -1,19 +1,9 @@
 # flutter_grpc
+This is an application that can receive `grpc` server stream and show it in the UI.
 
-A new Flutter application.
+## Regenerate services from protofile
+protoc --dart_out=grpc:lib/src/generated -Iprotos protos/greet.proto
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
-# Regenerate protofile
-protoc --dart_out=grpc:lib/src/generated -Iprotos protos/helloworld.proto
+## Test
+To test the application , use the server application from this [repo](https://github.com/Shorotshishir/grpc/tree/main/Server)
+> This application will be able to receive server side stream  
